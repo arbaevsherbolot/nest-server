@@ -7,14 +7,17 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { hash } from '../../utils/bcrypt';
 import { RegisterSchema } from './auth.schema';
-import { compareToken, generateTokens, hashToken } from 'src/utils/jwt';
+import { TokenService } from 'src/utils/jwt';
 import { LoginhDto, RegisterDto } from './dto';
 import { compare } from 'bcrypt';
 
 //Declare Auth Service
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private tokenService: TokenService,
+  ) {}
 
   async register(dto: RegisterDto) {
     const { firstName, lastName, email, password } = dto;
@@ -42,7 +45,7 @@ export class AuthService {
       data,
     });
 
-    const tokens = await generateTokens(user.id);
+    const tokens = await this.tokenService.generateTokens(user.id);
     await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
 
     try {
@@ -71,7 +74,7 @@ export class AuthService {
       throw new UnauthorizedException('Incorrect password');
     }
 
-    const tokens = await generateTokens(user.id);
+    const tokens = await this.tokenService.generateTokens(user.id);
     await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
 
     try {
@@ -138,14 +141,14 @@ export class AuthService {
     let comparedToken: boolean;
 
     if (user.refreshToken) {
-      comparedToken = await compareToken(token, user.refreshToken);
+      comparedToken = await this.tokenService.compareToken(token, user.refreshToken);
     }
 
     if (!comparedToken) {
       throw new ForbiddenException('Access denied, invalid token');
     }
 
-    const tokens = await generateTokens(user.id);
+    const tokens = await this.tokenService.generateTokens(user.id);
     await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
 
     try {
@@ -156,7 +159,7 @@ export class AuthService {
   }
 
   async updateRefreshTokenHash(userId: number, refreshToken: string) {
-    const hashedToken = await hashToken(refreshToken);
+    const hashedToken = await this.tokenService.hashToken(refreshToken);
 
     try {
       await this.prisma.user.update({
