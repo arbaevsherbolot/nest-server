@@ -4,12 +4,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { UserSchema } from './users.schema';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async getUsers(userId: number) {
+  async getUsers(userId: number): Promise<UserSchema[]> {
     const user = await this.prisma.user.findFirst({
       where: {
         id: userId,
@@ -17,8 +18,8 @@ export class UsersService {
       select: {
         id: true,
         role: true,
-        requset: true,
-        last_request: true,
+        requests: true,
+        lastRequest: true,
       },
     });
 
@@ -29,57 +30,104 @@ export class UsersService {
     const superAdmin = user.role === 'SUPERADMIN';
     const admin = user.role === 'ADMIN';
 
-    if (!admin && !superAdmin) {
-      throw new ForbiddenException(`You don't have access`);
-    }
-
-    const users = await this.prisma.user.findMany({
+    const users: UserSchema[] = await this.prisma.user.findMany({
       select: {
-        id: superAdmin ?? true,
+        id: true,
         firstName: true,
         lastName: true,
         photo: true,
         phone: true,
+        bio: true,
         email: true,
-        createdAt: true,
-        updatedAt: true,
-        role: superAdmin ?? true,
+        createdAt: (superAdmin || admin) && true,
+        updatedAt: (superAdmin || admin) && true,
+        role: true,
+        isVerified: true,
+        isActive: true,
         refreshToken: superAdmin ?? true,
         password: superAdmin ?? true,
-        requset: superAdmin ?? true,
-        last_request: superAdmin ?? true,
+        requests: superAdmin ?? true,
+        lastRequest: superAdmin ?? true,
       },
     });
 
-    const updatedRequest = await this.prisma.user.update({
-      where: {
-        id: user.id,
-        role: admin ? 'ADMIN' : 'SUPERADMIN',
-      },
-      data: {
-        requset: user.requset + 1,
-        last_request: new Date(),
-      },
-    });
-
-    console.log(
-      `
-      --------------------GET USERS--------------------
-
-      ${updatedRequest.role} - ${updatedRequest.firstName} ${
-        updatedRequest.lastName
-      }
-      ${updatedRequest.last_request.toDateString()} - ${updatedRequest.last_request.toTimeString()}
-      Requests: ${updatedRequest.requset}
-
-      -------------------------------------------------
-      `,
-    );
+    if (admin || superAdmin) {
+      await this.prisma.user.update({
+        where: {
+          id: user.id,
+          role: admin ? 'ADMIN' : 'SUPERADMIN',
+        },
+        data: {
+          requests: user?.requests ? user.requests + 1 : undefined,
+          lastRequest: new Date(),
+        },
+      });
+    }
 
     try {
       return users;
     } catch (e) {
       throw new Error(e.message);
     }
+  }
+
+  async getUser(id: number): Promise<UserSchema> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        role: true,
+        requests: true,
+        lastRequest: true,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User is not exist');
+    }
+
+    const superAdmin = user.role === 'SUPERADMIN';
+    const admin = user.role === 'ADMIN';
+
+    const dbUser: UserSchema = await this.prisma.user.findFirst({
+      where: {
+        id: user.id,
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        photo: true,
+        phone: true,
+        bio: true,
+        email: true,
+        createdAt: (superAdmin || admin) && true,
+        updatedAt: (superAdmin || admin) && true,
+        role: true,
+        isVerified: true,
+        isActive: true,
+        refreshToken: superAdmin ?? true,
+        password: superAdmin ?? true,
+        requests: superAdmin ?? true,
+        lastRequest: superAdmin ?? true,
+      },
+    });
+
+    if (admin || superAdmin) {
+      await this.prisma.user.update({
+        where: {
+          id: user.id,
+          role: admin ? 'ADMIN' : 'SUPERADMIN',
+        },
+        data: {
+          requests: user?.requests ? user.requests + 1 : undefined,
+          lastRequest: new Date(),
+        },
+      });
+    }
+
+    return dbUser;
   }
 }

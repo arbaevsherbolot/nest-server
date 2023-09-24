@@ -6,11 +6,23 @@ import {
   HttpStatus,
   UseGuards,
   Get,
+  Put,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 import { AuthService } from './auth.service';
-import { LoginhDto, RegisterDto } from './dto';
+import { LoginDto, RegisterDto } from './dto';
+import { Response } from 'express';
 import { RefreshTokenGuard } from './common/guards';
 import { GetCurrentUser, GetCurrentUserId, Public } from './common/decorators';
+import { FileSchema } from 'src/utils/schema';
+import {
+  EditProfileDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
+} from './dto/auth.dto';
 
 //Declare Auth Controller
 @Controller('auth')
@@ -20,34 +32,77 @@ export class AuthController {
   @Public()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  register(@Body() dto: RegisterDto) {
+  async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() dto: LoginhDto) {
+  async login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @Public()
+  @Post('password/forgot')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Public()
+  @Post('password/reset')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
   }
 
   @Get('profile')
   @HttpCode(HttpStatus.OK)
-  getProfile(@GetCurrentUserId() userId: number) {
+  async getProfile(@GetCurrentUserId() userId: number) {
+    console.log('GET Profile');
     return this.authService.getProfile(userId);
+  }
+
+  @Put('profile/edit')
+  @HttpCode(HttpStatus.OK)
+  async editProfile(
+    @Body() dto: EditProfileDto,
+    @GetCurrentUserId() userId: number,
+  ) {
+    return this.authService.editProfile(userId, dto);
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(@GetCurrentUserId() userId: number) {
+  async logout(@GetCurrentUserId() userId: number) {
     return this.authService.logout(userId);
+  }
+
+  @Put('upload/photo')
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          cb(null, `${file.originalname}`);
+        },
+      }),
+    }),
+  )
+  async uploadPhoto(
+    @GetCurrentUserId() userId: number,
+    @UploadedFile() file: FileSchema,
+  ) {
+    return this.authService.uploadPhoto(userId, file);
   }
 
   @Public()
   @UseGuards(RefreshTokenGuard)
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  refresh(
+  async refresh(
     @GetCurrentUser('refreshToken') refreshToken: string,
     @GetCurrentUserId() userId: number,
   ) {

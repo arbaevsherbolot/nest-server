@@ -1,53 +1,44 @@
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { Injectable } from '@nestjs/common';
 
-@Injectable()
-export class TokenService {
-  private readonly jwtService: JwtService;
+const jwt = new JwtService();
 
-  constructor() {
-    this.jwtService = new JwtService({
-      secret: process.env.JWT_SECRET_KEY,
-    });
-  }
+export const hashToken = (token: string) => bcrypt.hash(token, 10);
+export const compareToken = (token1: string, token2: string) =>
+  bcrypt.compare(token1, token2);
 
-  async hashToken(token: string): Promise<string> {
-    const hashedToken = await bcrypt.hash(token, 10);
-    return hashedToken;
-  }
+const createAccessToken = async (userId: number) => {
+  const token = await jwt.signAsync(
+    { id: userId },
+    {
+      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+      expiresIn: 60 * 30, //30 minutes
+    },
+  );
 
-  async compareToken(token1: string, token2: string): Promise<boolean> {
-    const compared = await bcrypt.compare(token1, token2);
-    return compared;
-  }
+  return token;
+};
 
-  async generateTokens(
-    userId: number,
-  ): Promise<{ access_token: string; refresh_token: string }> {
-    const accessToken = await this.createAccessToken(userId);
-    const refreshToken = await this.createRefreshToken(userId);
-    return {
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    };
-  }
+const createRefreshToken = async (userId: number) => {
+  const token = await jwt.signAsync(
+    { id: userId },
+    {
+      secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+      expiresIn: 60 * 60 * 24 * 7, //1 week
+    },
+  );
 
-  private async createAccessToken(userId: number): Promise<string> {
-    return this.jwtService.signAsync(
-      { id: userId },
-      {
-        expiresIn: 60 * 30, //30 minutes
-      },
-    );
-  }
+  return token;
+};
 
-  private async createRefreshToken(userId: number): Promise<string> {
-    return this.jwtService.signAsync(
-      { id: userId },
-      {
-        expiresIn: 60 * 60 * 24 * 7, //1 week
-      },
-    );
-  }
-}
+export const generateTokens = async (userId: number) => {
+  const accessToken = await createAccessToken(userId);
+  const refreshToken = await createRefreshToken(userId);
+
+  const tokens = {
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  };
+
+  return tokens;
+};

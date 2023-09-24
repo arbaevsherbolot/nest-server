@@ -18,12 +18,41 @@ export class RegisterDto {
   password: string;
 }
 
-export class LoginhDto {
+export class LoginDto {
   @IsNotEmpty()
-  @IsEmail()
-  email: string;
+  @IsString()
+  firstName: string;
 
   @IsNotEmpty()
   @IsString()
   password: string;
+}
+
+export class ForgotPasswordDto {
+  @IsNotEmpty()
+  @IsString()
+  firstName: string;
+}
+
+export class ResetPasswordDto {
+  @IsNotEmpty()
+  @IsString()
+  token: string;
+
+  @IsNotEmpty()
+  @IsString()
+  password: string;
+}
+
+export class EditProfileDto {
+  @IsNotEmpty()
+  @IsString()
+  firstName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  lastName: string;
+
+  @IsString()
+  bio: string;
 }

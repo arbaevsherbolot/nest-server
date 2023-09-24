@@ -1,4 +1,11 @@
-import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { GetCurrentUserId } from 'src/modules/auth/common/decorators';
 import { UsersService } from './users.service';
 
@@ -10,5 +17,11 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   async getUsers(@GetCurrentUserId() userId: number) {
     return this.usersService.getUsers(userId);
+  }
+
+  @Get('/:id')
+  @HttpCode(HttpStatus.OK)
+  async getUser(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.getUser(id);
   }
 }
