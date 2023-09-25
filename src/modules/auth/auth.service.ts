@@ -6,15 +6,10 @@ import {
 } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { PrismaService } from '../prisma/prisma.service';
+import { JwtService } from '../jwt/jwt.service';
 import { hash } from '../../utils/bcrypt';
 import { RegisterSchema } from './auth.schema';
-import { FileSchema } from 'src/utils/schema';
-import { compareToken, generateTokens, hashToken } from 'src/utils/jwt';
-import { Response } from 'express';
-import {
-  compareResetPasswordSecret,
-  generateResetPasswordSecret,
-} from 'src/utils/helpers';
+import { FileSchema } from '../../utils/schema';
 import { LoginDto, RegisterDto } from './dto';
 import { compare } from 'bcrypt';
 import {
@@ -28,6 +23,7 @@ import {
 export class AuthService {
   constructor(
     private prisma: PrismaService,
+    private jwt: JwtService,
     private readonly mailerService: MailerService,
   ) {}
 
@@ -41,7 +37,7 @@ export class AuthService {
     });
 
     if (existUser) {
-      throw new ConflictException('User already exists');
+      throw new ConflictException('Пользователь уже существует');
     }
 
     const hashedPassword = await hash(password);
@@ -57,11 +53,14 @@ export class AuthService {
       data,
     });
 
-    const tokens = await generateTokens(user.id);
+    const tokens = await this.jwt.generateTokens(user.id);
     await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
 
     try {
-      return tokens;
+      return {
+        user,
+        tokens,
+      };
     } catch (e) {
       throw new Error(e.message);
     }
@@ -77,11 +76,11 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('Член семьи не найден');
+      throw new UnauthorizedException('Пользователь не найден');
     }
 
     if (!user.isActive) {
-      throw new ForbiddenException('Член семьи заблокирован');
+      throw new ForbiddenException('Пользователь заблокирован');
     }
 
     const comparedPassword = await compare(password, user.password);
@@ -90,11 +89,14 @@ export class AuthService {
       throw new UnauthorizedException('Неверный пароль');
     }
 
-    const tokens = await generateTokens(user.id);
+    const tokens = await this.jwt.generateTokens(user.id);
     await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
 
     try {
-      return tokens;
+      return {
+        user,
+        tokens,
+      };
     } catch (e) {
       throw new Error(e.message);
     }
@@ -110,14 +112,14 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('User is not exist');
+      throw new UnauthorizedException('Пользователь не найден');
     }
 
     if (!user.isActive) {
-      throw new ForbiddenException('User was deactivated');
+      throw new ForbiddenException('Пользователь заблокирован');
     }
 
-    const token = await generateResetPasswordSecret(user.id);
+    const token = await this.jwt.generateResetPasswordSecret(user.id);
     const forgotLink = `${process.env.CLIENT_APP_URL}/password/reset/?token=${token}`;
 
     await this.prisma.user.update({
@@ -132,15 +134,15 @@ export class AuthService {
     await this.mailerService.sendMail({
       to: user.email,
       from: process.env.MAILER_USER,
-      subject: 'Reset your password',
+      subject: 'Сброс пароля',
       html: `
-          <h2>Hey ${user.firstName}</h2>
-          <p>Please use this <a href="${forgotLink}">Link</a> to reset your password.</p>
+          <h2>Привет ${user.firstName}</h2>
+          <p>Для восстановления пароля воспользуйтесь этой <a href="${forgotLink}">ссылкой</a>.</p>
       `,
     });
 
     try {
-      return `Reset link has been sent to ${user.email}`;
+      return `Ссылка на сброс пароля отправлена на ${user.email}`;
     } catch (e) {
       throw new Error(e.message);
     }
@@ -149,12 +151,12 @@ export class AuthService {
   async resetPassword(dto: ResetPasswordDto) {
     const { password, token } = dto;
 
-    const compare = await compareResetPasswordSecret(token);
+    const compare = await this.jwt.compareResetPasswordSecret(token);
     const userId = compare.id;
     const hashedPassword = await hash(password);
 
     if (!userId) {
-      throw new UnauthorizedException('User is not exist');
+      throw new UnauthorizedException('Пользователь не найден');
     }
 
     const user = await this.prisma.user.update({
@@ -167,7 +169,7 @@ export class AuthService {
     });
 
     try {
-      return `Password of user: ${user.email} updated successfully`;
+      return `Пароль пользователя: ${user.email} успешно обновлен`;
     } catch (e) {
       throw new Error(e.message);
     }
@@ -181,7 +183,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('User is not exist');
+      throw new UnauthorizedException('Пользователь не найден');
     }
 
     try {
@@ -205,24 +207,10 @@ export class AuthService {
       where: {
         id: userId,
       },
-      select: {
-        id: true,
-        role: true,
-        firstName: true,
-        lastName: true,
-        photo: true,
-        phone: true,
-        email: true,
-        bio: true,
-        isVerified: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
-      },
     });
 
     if (!user) {
-      throw new UnauthorizedException('User is not exist');
+      throw new UnauthorizedException('Пользователь не найден');
     }
 
     try {
@@ -242,7 +230,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('User is not exist');
+      throw new UnauthorizedException('Пользователь не найден');
     }
 
     const updatedUser = await this.prisma.user.update({
@@ -271,7 +259,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('User is not exist');
+      throw new UnauthorizedException('Пользователь не найден');
     }
 
     const updatedUser = await this.prisma.user.update({
@@ -298,20 +286,20 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new ForbiddenException('Access denied');
+      throw new UnauthorizedException('Пользователь не найден');
     }
 
     let comparedToken: boolean;
 
     if (user.refreshToken) {
-      comparedToken = await compareToken(token, user.refreshToken);
+      comparedToken = await this.jwt.compareToken(token, user.refreshToken);
     }
 
     if (!comparedToken) {
-      throw new ForbiddenException('Access denied, invalid token');
+      throw new ForbiddenException('Доступ запрещен, недействительный токен');
     }
 
-    const tokens = await generateTokens(user.id);
+    const tokens = await this.jwt.generateTokens(user.id);
     await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
 
     try {
@@ -322,7 +310,7 @@ export class AuthService {
   }
 
   async updateRefreshTokenHash(userId: number, refreshToken: string) {
-    const hashedToken = await hashToken(refreshToken);
+    const hashedToken = await this.jwt.hashToken(refreshToken);
 
     try {
       await this.prisma.user.update({

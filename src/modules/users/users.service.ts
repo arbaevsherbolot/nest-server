@@ -1,11 +1,11 @@
 import {
-  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserSchema } from './users.schema';
 
+//Declare Users Service
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}

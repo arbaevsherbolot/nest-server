@@ -6,9 +6,10 @@ import {
   Param,
   ParseIntPipe,
 } from '@nestjs/common';
-import { GetCurrentUserId } from 'src/modules/auth/common/decorators';
+import { GetCurrentUserId } from '../../modules/auth/common/decorators';
 import { UsersService } from './users.service';
 
+//Declare Users Controller
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}

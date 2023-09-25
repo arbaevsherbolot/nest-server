@@ -1,8 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { AuthModule , UsersModule} from './modules/index';
+import {
+  AuthModule,
+  UsersModule,
+  JwtModule,
+  PrismaModule,
+} from './modules/index';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from './modules/prisma/prisma.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './modules/auth/common/guards';
 import { MailerModule } from '@nestjs-modules/mailer';
@@ -30,6 +34,7 @@ import { join } from 'path';
     AuthModule,
     PrismaModule,
     UsersModule,
+    JwtModule,
   ],
   providers: [
     {

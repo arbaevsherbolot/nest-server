@@ -14,7 +14,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto';
-import { Response } from 'express';
 import { RefreshTokenGuard } from './common/guards';
 import { GetCurrentUser, GetCurrentUserId, Public } from './common/decorators';
 import { FileSchema } from 'src/utils/schema';
