@@ -15,22 +15,22 @@ enum UserRole {
 
 model User {
   id                   Int       @id @default(autoincrement())
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
-  isActive             Boolean   @default(true)
-  isVerified           Boolean   @default(false)
+  role                 UserRole  @default(USER)
+  firstName            String
+  lastName             String
+  photo                String?
   email                String    @unique
+  phone                String?
+  bio                  String?
   password             String
   resetPasswordSecret  String?
-  role                 UserRole  @default(USER)
+  isActive             Boolean   @default(true)
+  isVerified           Boolean   @default(false)
   requests             Int       @default(0)
   lastRequest          DateTime?
-  firstName            String?   @unique
-  lastName             String?
-  bio                  String?
-  photo                String?
-  phone                String?
   refreshToken         String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 }
 
 
