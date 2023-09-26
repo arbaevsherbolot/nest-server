@@ -16,7 +16,6 @@ import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto';
 import { RefreshTokenGuard } from './common/guards';
 import { GetCurrentUser, GetCurrentUserId, Public } from './common/decorators';
-import { FileSchema } from 'src/utils/schema';
 import {
   EditProfileDto,
   ForgotPasswordDto,
@@ -92,7 +91,7 @@ export class AuthController {
   )
   async uploadPhoto(
     @GetCurrentUserId() userId: number,
-    @UploadedFile() file: FileSchema,
+    @UploadedFile() file: Express.Multer.File,
   ) {
     return this.authService.uploadPhoto(userId, file);
   }

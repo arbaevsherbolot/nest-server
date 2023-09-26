@@ -2,6 +2,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -9,7 +10,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '../jwt/jwt.service';
 import { hash } from '../../utils/bcrypt';
 import { RegisterSchema } from './auth.schema';
-import { FileSchema } from '../../utils/schema';
 import { LoginDto, RegisterDto } from './dto';
 import { compare } from 'bcrypt';
 import {
@@ -251,12 +251,16 @@ export class AuthService {
     }
   }
 
-  async uploadPhoto(userId: number, file: FileSchema) {
+  async uploadPhoto(userId: number, file: Express.Multer.File) {
     const user = await this.prisma.user.findFirst({
       where: {
         id: userId,
       },
     });
+
+    if(!file) {
+      throw new NotFoundException('Файл не найден')
+    }
 
     if (!user) {
       throw new UnauthorizedException('Пользователь не найден');
