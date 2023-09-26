@@ -20,8 +20,8 @@ export class RegisterDto {
 
 export class LoginDto {
   @IsNotEmpty()
-  @IsString()
-  firstName: string;
+  @IsEmail()
+  email: string;
 
   @IsNotEmpty()
   @IsString()
@@ -30,8 +30,8 @@ export class LoginDto {
 
 export class ForgotPasswordDto {
   @IsNotEmpty()
-  @IsString()
-  firstName: string;
+  @IsEmail()
+  email: string;
 }
 
 export class ResetPasswordDto {
