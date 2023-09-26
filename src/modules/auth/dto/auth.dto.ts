@@ -20,8 +20,8 @@ export class RegisterDto {
 
 export class LoginDto {
   @IsNotEmpty()
-  @IsEmail()
-  email: string;
+  @IsString()
+  firstName: string;
 
   @IsNotEmpty()
   @IsString()
