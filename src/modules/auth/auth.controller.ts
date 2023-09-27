@@ -58,7 +58,6 @@ export class AuthController {
   @Get('profile')
   @HttpCode(HttpStatus.OK)
   async getProfile(@GetCurrentUserId() userId: number) {
-    console.log('GET Profile');
     return this.authService.getProfile(userId);
   }
 
