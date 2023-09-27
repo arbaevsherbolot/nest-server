@@ -1,18 +1,21 @@
+type UserRole = 'USER' | 'ADMIN' | 'SUPERADMIN';
+
 export interface UserSchema {
   id: number;
-  firstName: string;
-  lastName: string;
-  photo: string;
-  phone?: string;
-  bio?: string;
-  role: string;
-  email: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  isVerified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
   isActive: boolean;
-  refreshToken: string,
-  password: string,
-  requests: number,
-  lastRequest: Date,
+  isVerified: boolean;
+  email: string;
+  password: string;
+  resetPasswordSecret?: string | null;
+  role: UserRole;
+  requests: number;
+  lastRequest?: Date | null;
+  firstName: string | null;
+  lastName: string | null;
+  bio?: string | null;
+  photo?: string | null;
+  phone?: string | null;
+  refreshToken?: string | null;
 }

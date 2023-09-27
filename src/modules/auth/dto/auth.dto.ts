@@ -21,7 +21,7 @@ export class RegisterDto {
 export class LoginDto {
   @IsNotEmpty()
   @IsString()
-  firstName: string;
+  email: string;
 
   @IsNotEmpty()
   @IsString()
