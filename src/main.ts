@@ -15,7 +15,7 @@ async function start() {
   //Set CORS configuration
   app.enableCors({
     origin: ['http://localhost:3000'],
-    methods: ['GET,HEAD,PUT,PATCH,POST,DELETE'],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
     credentials: true,
   });
 
