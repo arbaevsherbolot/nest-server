@@ -78,16 +78,7 @@ export class AuthController {
 
   @Put('upload/photo')
   @HttpCode(HttpStatus.OK)
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, cb) => {
-          cb(null, `${file.originalname.replace(/\s/g, '')}`);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file'))
   async uploadPhoto(
     @GetCurrentUserId() userId: number,
     @UploadedFile() file: Express.Multer.File,
