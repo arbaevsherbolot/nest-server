@@ -17,20 +17,24 @@ export const getUrl = (bucket: string, filename: string) => {
   return `${supabaseUrl}/storage/v1/object/public${bucket}/${filename}`;
 };
 
-const generateUniqueFileName = (originalFileName: string) => {
+const generateUniqueFileName = (userId: number, originalFileName: string) => {
   const timestamp = Date.now();
   const fileExtension = originalFileName.split('.').pop();
-  return `photo-${timestamp}.${fileExtension}`;
+  return `user-${userId}-photo-${timestamp}.${fileExtension}`;
 };
 
-export const upload = async (file: Express.Multer.File, bucket: string) => {
+export const upload = async (
+  userId: number,
+  file: Express.Multer.File,
+  bucket: string,
+) => {
   const maxSize = 15 * 1024 * 1024; // 15 MB
   if (file.size > maxSize) {
     throw new BadRequestException('Размер файла превышает ограничение в 15 МБ');
   }
 
   try {
-    const filename = generateUniqueFileName(file.originalname);
+    const filename = generateUniqueFileName(userId, file.originalname);
 
     const { data } = await supabase.storage
       .from(bucket)

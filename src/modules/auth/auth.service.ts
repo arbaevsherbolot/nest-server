@@ -274,7 +274,7 @@ export class AuthService {
       throw new UnauthorizedException('Пользователь не найден');
     }
 
-    const path = await upload(file, '/photos');
+    const path = await upload(user.id, file, '/photos');
 
     const updatedUser = await this.prisma.user.update({
       where: {
