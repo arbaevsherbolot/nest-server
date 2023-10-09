@@ -17,7 +17,7 @@ import {
   ForgotPasswordDto,
   ResetPasswordDto,
 } from './dto/auth.dto';
-import { upload } from 'src/utils/supabase';
+import { getUrl, upload } from 'src/utils/supabase';
 
 //Declare Auth Service
 @Injectable()
@@ -214,8 +214,15 @@ export class AuthService {
       throw new UnauthorizedException('Пользователь не найден');
     }
 
+    const photoUrl = getUrl('/photos', user.photo);
+
+    const userOptionalParams = {
+      ...user,
+      photo: photoUrl,
+    };
+
     try {
-      return user;
+      return userOptionalParams;
     } catch (e) {
       throw new Error(e.message);
     }
@@ -267,14 +274,14 @@ export class AuthService {
       throw new UnauthorizedException('Пользователь не найден');
     }
 
-    const url = await upload(file, '/photos');
+    const path = await upload(file, '/photos');
 
     const updatedUser = await this.prisma.user.update({
       where: {
         id: user.id,
       },
       data: {
-        photo: url,
+        photo: path,
       },
     });
 

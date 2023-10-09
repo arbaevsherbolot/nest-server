@@ -11,7 +11,6 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto';
 import { RefreshTokenGuard } from './common/guards';

@@ -12,7 +12,7 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
   },
 });
 
-const getUrl = (bucket: string, filename: string) => {
+export const getUrl = (bucket: string, filename: string) => {
   if (!filename) return '';
   return `${supabaseUrl}/storage/v1/object/public${bucket}/${filename}`;
 };
@@ -38,9 +38,7 @@ export const upload = async (file: Express.Multer.File, bucket: string) => {
         upsert: true,
       });
 
-    const url = getUrl(bucket, data.path);
-
-    return url;
+    return data.path;
   } catch (e) {
     throw new Error('Error uploading file to supabase', e);
   }
