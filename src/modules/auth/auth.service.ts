@@ -12,12 +12,12 @@ import { hash } from '../../utils/bcrypt';
 import { RegisterSchema } from './auth.schema';
 import { LoginDto, RegisterDto } from './dto';
 import { compare } from 'bcrypt';
+import { getUrl, upload } from '../../utils/supabase';
 import {
   EditProfileDto,
   ForgotPasswordDto,
   ResetPasswordDto,
 } from './dto/auth.dto';
-import { getUrl, upload } from 'src/utils/supabase';
 
 //Declare Auth Service
 @Injectable()
