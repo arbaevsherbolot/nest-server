@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class RegisterDto {
   @IsNotEmpty()
@@ -54,5 +54,7 @@ export class EditProfileDto {
   lastName: string;
 
   @IsString()
+  @MaxLength(1200)
+  @MinLength(10)
   bio: string;
 }
