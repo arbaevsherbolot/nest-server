@@ -34,4 +34,11 @@ model User {
 }
 
 
+model Messsage {
+  id       Int       @id @default(autoincrement())
+  name     String
+  email    String
+  message  String
+}
+
 

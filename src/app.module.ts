@@ -11,6 +11,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './modules/auth/common/guards';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
+import { MessagesModule } from './modules/messages/messages.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { join } from 'path';
     PrismaModule,
     UsersModule,
     JwtModule,
+    MessagesModule,
   ],
   providers: [
     {
