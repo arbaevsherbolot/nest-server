@@ -3,8 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 
 async function start() {
-  // const app = await NestFactory.create(AppModule, { cors: true });
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
   const port = 888;
 
   //Set CORS configuration
