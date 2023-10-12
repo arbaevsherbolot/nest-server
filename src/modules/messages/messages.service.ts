@@ -3,7 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { NewMessageDto } from './dto/messages.dto';
+import { NewMessageDto } from './dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailerService } from '@nestjs-modules/mailer';
 
@@ -32,8 +32,17 @@ export class MessagesService {
         from: email,
         subject: 'New Message',
         html: `
-            <h2>Name: ${name}, Email: ${email}</h2>
-            <p>${message}</p>
+         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #007BFF;">New Message Received</h2>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
+              <strong>Message:</strong>
+              <br />
+              ${message}
+            </p>
+            <p style="color: #007BFF;">© Sherbolot Arbaev - Contacts</p>
+          </div>
         `,
       });
 
