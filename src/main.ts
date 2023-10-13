@@ -7,7 +7,12 @@ async function start() {
   const port = 888;
 
   //Set CORS configuration
-  app.enableCors();
+  app.enableCors({
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe',
+    credentials: true,
+  });
 
   //Set the global prefix for our server
   app.setGlobalPrefix('api');
