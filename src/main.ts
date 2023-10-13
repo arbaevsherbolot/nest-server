@@ -8,9 +8,9 @@ async function start() {
 
   //Set CORS configuration
   app.enableCors({
-    origin: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe',
+    origin: ['http://localhost:3000', 'https://arbaevs.vercel.app'],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: '*',
     credentials: true,
   });
 
