@@ -9,13 +9,13 @@ export class MessagesController {
   constructor(private messagesService: MessagesService) {}
 
   @Public()
-  @Post()
+  @Post('/')
   @HttpCode(HttpStatus.CREATED)
   async newMessage(@Body() dto: NewMessageDto) {
     return await this.messagesService.newMessage(dto);
   }
 
-  @Get()
+  @Get('/')
   @HttpCode(HttpStatus.OK)
   async getMessages(@GetCurrentUserId() userId: number) {
     return await this.messagesService.getMessages(userId);
