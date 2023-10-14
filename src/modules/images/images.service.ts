@@ -13,7 +13,7 @@ export class ImagesService {
   constructor(private prisma: PrismaService) {}
 
   async uploadImage(userId: number, file: Express.Multer.File, dto: ImageDto) {
-    const { title } = dto;
+    const { title, width, height } = dto;
 
     const user = await this.prisma.user.findFirst({
       where: {
@@ -37,6 +37,8 @@ export class ImagesService {
         authorId: user.id,
         url,
         title: title ? title : '',
+        width: parseInt(width),
+        height: parseInt(height),
       },
     });
 

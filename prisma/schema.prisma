@@ -39,7 +39,9 @@ model Image {
   author       User    @relation(fields: [authorId], references: [id])
   authorId     Int
   url          String
-  title        String?
+  title        String
+  width        Int
+  height       Int
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
