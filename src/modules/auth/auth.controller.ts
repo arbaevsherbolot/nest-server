@@ -12,14 +12,15 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthService } from './auth.service';
-import { LoginDto, RegisterDto } from './dto';
-import { RefreshTokenGuard } from './common/guards';
-import { GetCurrentUser, GetCurrentUserId, Public } from './common/decorators';
 import {
+  LoginDto,
+  RegisterDto,
   EditProfileDto,
   ForgotPasswordDto,
   ResetPasswordDto,
-} from './dto/auth.dto';
+} from './dto';
+import { RefreshTokenGuard } from './common/guards';
+import { GetCurrentUser, GetCurrentUserId, Public } from './common/decorators';
 
 //Declare Auth Controller
 @Controller('auth')

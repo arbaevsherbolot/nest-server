@@ -16,6 +16,20 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@auth": ["src/modules/auth"],
+      "@auth/*": ["src/modules/auth/*"],
+      "@prisma": ["src/modules/prisma"],
+      "@prisma/*": ["src/modules/prisma/*"],
+      "@images": ["src/modules/images"],
+      "@images/*": ["src/modules/images/*"],
+      "@jwt": ["src/modules/jwt"],
+      "@jwt/*": ["src/modules/jwt/*"],
+      "@messages": ["src/modules/messages"],
+      "@messages/*": ["src/modules/messages/*"],
+      "@users": ["src/modules/users"],
+      "@users/*": ["src/modules/users/*"]
+    }
   }
 }

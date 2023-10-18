@@ -7,7 +7,7 @@ import {
   PrismaModule,
   MessagesModule,
   ImagesModule,
-} from './modules/index';
+} from './modules';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './modules/auth/common/guards';
